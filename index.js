@@ -27,6 +27,12 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
 //regiseter
 app.post('/api/users/register',(req,res)=>{
     const user=new User(req.body);
@@ -60,10 +66,7 @@ app.post('/api/users/login',(req,res)=>{
             //generate token
             user.generateToken((err,user)=>{
                 if(err) return res.status(400).send(err);
-                res.status(200).json({
-                    loginSuccess:true,
-                    token:user
-                })
+                res.status(200).json(user)
             })
         })
         
@@ -71,7 +74,6 @@ app.post('/api/users/login',(req,res)=>{
     
     })
     })
-
 
 
 const port=process.env.PORT||3002;
