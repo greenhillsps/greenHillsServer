@@ -72,8 +72,34 @@ app.post('/api/users/login',(req,res)=>{
     })
     })
 
+    //get users
+    app.get('/users',(req,res)=>{
+    User.find({active:true}).exec((err,res)=>{
+      if(err)res.status(400).json({
+          message:err
+      })
+        else res.status(200).json(res)
+    })
+    })
 
+    
+    // //get students
+    // app.get('/students/:name',(req,res)=>{
+    // User.find({active:true, name: new RegExp(req.params.name, "i")}).exec((err,res)=>{
+    //   if(err)res.status(400).json({
+    //       message:err
+    //   })
+    //     else res.status(200).json(res)
+    // })
+    // })
 
+//update user
+app.put('/updateUser/:id',(req,res)=>{
+    User.findByIdAndUpdate({_id:req.params.id},{name:req.body.name},(err,res)=>{
+        if(err) res.status(400).json(err)
+            else res.status(200).json(res)
+    })
+})
 const port=process.env.PORT||3002;
 app.listen(port,()=>{
     console.log(`server is running on port ${port}`)

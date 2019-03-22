@@ -1,0 +1,84 @@
+git config --global user.name 'uqair ali"    //configuration 
+git config --global user.email 'uqair ali"  
+
+basic comments
+
+1) git init           //make a git file
+
+2) git status         //check which file was added
+
+3) echo node_modules > .gitignore    //ignore gitignore file which include node_modules
+
+4) git add .          //add all files
+
+5)git commit -m "change one"  //make snap shot you also visit ofter change your code
+
+now its avalible it localy we upload this usng hithub first we create accound in githum.com its free and then create new directry
+ofter copy link this directory and then.
+
+1) git remote add origin https://github.com/muqair/test.git     //connected to your githum space
+ =>git remote set-url origin https://github.com/USERNAME/REPOSITORY.git   // for reset url
+
+2)git push origin master   //push your project
+
+
+now if we want to access this project it any computer for this 
+
+1) git clone https://github.com/muqair/test.git  //your cloning url first time
+
+when you you want to update any change then 
+
+2) git pull origin master //for check update if any change found its clone these changis
+
+check origin url
+3) git remote show origin
+
+
+ now lats go to understand branches.
+branches basically used to make copy of project its mean we make many of many branches and difernet users
+work on it but original project structure stal not to be change.
+and after then we marge all these branches in original project or root .
+
+1) git branch  //chech how many branches
+
+2) git branch new_test  //for crate new branch its time crate a copy from root branch
+
+3) git checkout new_test //for switch from one branch to other
+
+if we marge the child branch to root project for that first we select root branch that is by default master
+so
+
+1) git checkout master //switch to root folder
+
+2) git marge new_test  //marge new_test folder to over main master folder.
+
+for deleting root directory
+
+1) git branch -d new_test  //for deleting branch 
+
+
+//how re set githum origin url;
+git remote set-url origin http://webdev/tickwsapi.git
+
+///
+how to set heroku remtoe.
+git remote add heroku https://git.heroku.com/app.git
+
+//how to remove heroku remote
+git remote rm heroku
+
+//delete locla branch
+git branch -D branch_name
+
+//delete branch from remote origin
+git push origin --delete branch_name
+
+
+
+my github account login
+userName: uqairali
+password: programing1995
+
+
+
+
