@@ -1,7 +1,7 @@
 const express =require('express');
 const bodyParser =require('body-parser');
 const cookieParser= require('cookie-parser');
-
+var cors = require('cors');
 const formidable=require('express-formidable');
 
 const app=express();
@@ -25,7 +25,7 @@ mongoose.connect(process.env.DATABASE,(err=>{
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 app.use(cookieParser());
-
+app.use(cors());
 
 
 app.use(function(req, res, next) {
