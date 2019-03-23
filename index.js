@@ -75,7 +75,47 @@ app.post('/api/users/login',(req,res)=>{
     })
     })
 
+    //get users
+    app.get('/api/users',(req,res)=>{
+    User.find({active:true}).exec((err,data)=>{
+      if(err)res.status(400).json(err)
+        else res.status(200).json(data)
+    })
+    })
 
+    //blocked unblocked users
+    app.get('/api/users-blockUnblock/:id/:block',(req,res)=>{
+        User.findByIdAndUpdate({_id:req.params.id},{blocked:req.params.block},(err,user)=>{
+            if(err) res.status(400).json(err)
+                else res.status(200).json(user)
+        })
+    })
+
+    //delete users
+    app.get('/api/user-delete/:id',(req,res)=>{
+        User.findByIdAndUpdate({_id:req.params.id},{active:false},(err,user)=>{
+            if(err) res.status(400).json(err)
+                else res.status(200).json(user)
+        })
+    })
+    
+    // //get students
+    // app.get('/students/:name',(req,res)=>{
+    // User.find({active:true, name: new RegExp(req.params.name, "i")}).exec((err,res)=>{
+    //   if(err)res.status(400).json({
+    //       message:err
+    //   })
+    //     else res.status(200).json(res)
+    // })
+    // })
+
+//update user
+app.put('/api/updateUser/:id',(req,res)=>{
+    User.findByIdAndUpdate({_id:req.params.id},{name:req.body.name,email:req.body.email,role:req.body.role,password:req.body.password},(err,user)=>{
+        if(err) res.status(400).json(err)
+            else res.status(200).json(user)
+    })
+})
 const port=process.env.PORT||3002;
 app.listen(port,()=>{
     console.log(`server is running on port ${port}`)

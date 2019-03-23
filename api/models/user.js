@@ -5,6 +5,10 @@ const SALT_I=10;
 require('dotenv').config();
 
 const userSchema = mongoose.Schema({
+    name:{
+     required:true,
+     type:String
+    },
     email: {
         type: String,
         require: true,
@@ -28,6 +32,10 @@ const userSchema = mongoose.Schema({
     active:{
         type:Boolean,
         default:true
+    },
+    blocked:{
+        type:Boolean,
+        default:false
     }
     
 
