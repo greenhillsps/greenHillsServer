@@ -27,6 +27,12 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
 //regiseter
 app.post('/api/users/register', (req, res) => {
     const user = new User(req.body);
@@ -58,12 +64,9 @@ app.post('/api/users/login', (req, res) => {
             if (!isMatch) return res.status(400).json({ loginSuccess: false, message: 'Wrong password' });
 
             //generate token
-            user.generateToken((err, user) => {
-                if (err) return res.status(400).send(err);
-                res.status(200).json({
-                    loginSuccess: true,
-                    token: user
-                })
+            user.generateToken((err,user)=>{
+                if(err) return res.status(400).send(err);
+                res.status(200).json(user)
             })
         })
 
@@ -72,32 +75,45 @@ app.post('/api/users/login', (req, res) => {
     })
 })
 
-//get users
-app.get('/users', (req, res) => {
-    User.find({ active: true }).exec((err, res) => {
-        if (err) res.status(400).json({
-            message: err
-        })
-        else res.status(200).json(res)
+    //get users
+    app.get('/api/users',(req,res)=>{
+    User.find({active:true}).exec((err,data)=>{
+      if(err)res.status(400).json(err)
+        else res.status(200).json(data)
     })
-})
+    })
 
+    //blocked unblocked users
+    app.get('/api/users-blockUnblock/:id/:block',(req,res)=>{
+        User.findByIdAndUpdate({_id:req.params.id},{blocked:req.params.block}, {new:true},(err,user)=>{
+            if(err) res.status(400).json(err)
+                else res.status(200).json(user)
+        })
+    })
 
-// //get students
-// app.get('/students/:name',(req,res)=>{
-// User.find({active:true, name: new RegExp(req.params.name, "i")}).exec((err,res)=>{
-//   if(err)res.status(400).json({
-//       message:err
-//   })
-//     else res.status(200).json(res)
-// })
-// })
+    //delete users
+    app.get('/api/user-delete/:id',(req,res)=>{
+        User.remove({_id:req.params.id},(err,user)=>{
+            if(err) res.status(400).json(err)
+                else res.status(200).json(user)
+        })
+    })
+    
+    // //get students
+    // app.get('/students/:name',(req,res)=>{
+    // User.find({active:true, name: new RegExp(req.params.name, "i")}).exec((err,res)=>{
+    //   if(err)res.status(400).json({
+    //       message:err
+    //   })
+    //     else res.status(200).json(res)
+    // })
+    // })
 
 //update user
-app.put('/updateUser/:id', (req, res) => {
-    User.findByIdAndUpdate({ _id: req.params.id }, { name: req.body.name }, (err, res) => {
-        if (err) res.status(400).json(err)
-        else res.status(200).json(res)
+app.put('/api/updateUser/:id',(req,res)=>{
+    User.findByIdAndUpdate({_id:req.params.id},{name:req.body.name,email:req.body.email,role:req.body.role,password:req.body.password},{new:true},(err,user)=>{
+        if(err) res.status(400).json(err)
+            else res.status(200).json(user)
     })
 })
 const port = process.env.PORT || 3002;
