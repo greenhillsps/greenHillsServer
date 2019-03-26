@@ -2,7 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cors=require('cors');
-const formidable = require('express-formidable');
+const cloudinary=require('cloudinary');
+const formidable=require('express-formidable');
 
 const app = express();
 const mongoose = require('mongoose');
@@ -10,7 +11,7 @@ require('dotenv').config();
 
 
 const { User } = require('./api/models/user');
-
+const Teacher=require('./api/models/teacher');
 //mongoose connections
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.DATABASE, (err => {
@@ -25,14 +26,16 @@ mongoose.connect(process.env.DATABASE, (err => {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(cors())
+//cloudinary config use for uploading iamges and videos
+
+cloudinary.config({
+    cloud_name:process.env.CLOUD_NAME,
+    api_key:process.env.CLOUD_API_KEY,
+    api_secret:process.env.CLOUD_API_SECRET
+})
 
 
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-  });
 //regiseter
 app.post('/api/users/register', (req, res) => {
     const user = new User(req.body);
@@ -116,6 +119,42 @@ app.put('/api/updateUser/:id',(req,res)=>{
             else res.status(200).json(user)
     })
 })
+
+
+//register teacher
+app.post('/api/registerTeacher',(req,res)=>{
+     const teacher = new Teacher(req.body);
+    teacher.save((err, doc) => {
+        if (err) {
+            res.status(400).json({
+                success: false,
+                err
+            })
+        } else {
+            res.status(200).json({
+                success: true,
+                  data:doc
+            })
+        }
+    })
+})
+
+
+
+//posting images
+app.post('/api/uploadimage',formidable(),(req,res)=>{
+    cloudinary.uploader.upload(req.files.file.path,(result)=>{
+     console.log(result);
+     res.status(200).send({
+         public_id:result.public_id,
+         url:result.url
+     })
+    },{
+        public_id:`${Date.now()}`,
+        resource_type:'auto'
+    })
+})
+
 const port = process.env.PORT || 3002;
 app.listen(port, () => {
     console.log(`server is running on port ${port}`)
