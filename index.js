@@ -1,28 +1,28 @@
-const express =require('express');
-const bodyParser =require('body-parser');
-const cookieParser= require('cookie-parser');
-var cors = require('cors');
-const formidable=require('express-formidable');
+const express = require('express');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const cors=require('cors');
+const formidable = require('express-formidable');
 
-const app=express();
-const mongoose =require('mongoose');
+const app = express();
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 
-const { User } =require('./api/models/user');
+const { User } = require('./api/models/user');
 
 //mongoose connections
-mongoose.Promise=global.Promise;
-mongoose.connect(process.env.DATABASE,(err=>{
-    if(err){
+mongoose.Promise = global.Promise;
+mongoose.connect(process.env.DATABASE, (err => {
+    if (err) {
         console.log(process.env.DATABASE)
         console.log("mongodb connection failed!!!!")
-    }else{
+    } else {
         console.log("mongodb connected success")
     }
 }))
 
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(cors());
@@ -34,17 +34,17 @@ app.use(function(req, res, next) {
     next();
   });
 //regiseter
-app.post('/api/users/register',(req,res)=>{
-    const user=new User(req.body);
-    user.save((err,doc)=>{
-        if(err){
+app.post('/api/users/register', (req, res) => {
+    const user = new User(req.body);
+    user.save((err, doc) => {
+        if (err) {
             res.status(400).json({
-                success:false,
+                success: false,
                 err
             })
-        }else{
+        } else {
             res.status(200).json({
-                success:true,
+                success: true,
                 //userdata:doc
             })
         }
@@ -53,27 +53,27 @@ app.post('/api/users/register',(req,res)=>{
 
 
 //login
-app.post('/api/users/login',(req,res)=>{
+app.post('/api/users/login', (req, res) => {
     //find the email
     //check password
     //generate a token
-    User.findOne({'email':req.body.email},(err,user)=>{
-        if(!user)return res.status(400).json({loginSuccess:false,message:'Auth failed, email not found'})
-    
-        user.comparePassword(req.body.password,(err,isMatch)=>{
-            if(!isMatch)return res.status(400).json({loginSuccess:false,message:'Wrong password'});
-    
+    User.findOne({ 'email': req.body.email }, (err, user) => {
+        if (!user) return res.status(400).json({ loginSuccess: false, message: 'Auth failed, email not found' })
+
+        user.comparePassword(req.body.password, (err, isMatch) => {
+            if (!isMatch) return res.status(400).json({ loginSuccess: false, message: 'Wrong password' });
+
             //generate token
             user.generateToken((err,user)=>{
                 if(err) return res.status(400).send(err);
                 res.status(200).json(user)
             })
         })
-        
-        
-    
+
+
+
     })
-    })
+})
 
     //get users
     app.get('/api/users',(req,res)=>{
@@ -85,7 +85,7 @@ app.post('/api/users/login',(req,res)=>{
 
     //blocked unblocked users
     app.get('/api/users-blockUnblock/:id/:block',(req,res)=>{
-        User.findByIdAndUpdate({_id:req.params.id},{blocked:req.params.block},(err,user)=>{
+        User.findByIdAndUpdate({_id:req.params.id},{blocked:req.params.block}, {new:true},(err,user)=>{
             if(err) res.status(400).json(err)
                 else res.status(200).json(user)
         })
@@ -93,7 +93,7 @@ app.post('/api/users/login',(req,res)=>{
 
     //delete users
     app.get('/api/user-delete/:id',(req,res)=>{
-        User.findByIdAndUpdate({_id:req.params.id},{active:false},(err,user)=>{
+        User.remove({_id:req.params.id},(err,user)=>{
             if(err) res.status(400).json(err)
                 else res.status(200).json(user)
         })
@@ -111,12 +111,12 @@ app.post('/api/users/login',(req,res)=>{
 
 //update user
 app.put('/api/updateUser/:id',(req,res)=>{
-    User.findByIdAndUpdate({_id:req.params.id},{name:req.body.name,email:req.body.email,role:req.body.role,password:req.body.password},(err,user)=>{
+    User.findByIdAndUpdate({_id:req.params.id},{name:req.body.name,email:req.body.email,role:req.body.role,password:req.body.password},{new:true},(err,user)=>{
         if(err) res.status(400).json(err)
             else res.status(200).json(user)
     })
 })
-const port=process.env.PORT||3002;
-app.listen(port,()=>{
+const port = process.env.PORT || 3002;
+app.listen(port, () => {
     console.log(`server is running on port ${port}`)
 })
