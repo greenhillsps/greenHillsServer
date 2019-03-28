@@ -12,6 +12,8 @@ require('dotenv').config();
 
 const { User } = require('./api/models/user');
 const Teacher = require('./api/models/teacher');
+const TeacherDeduction=require('./api/models/teacherDeduction');
+
 //mongoose connections
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.DATABASE, (err => {
@@ -123,7 +125,6 @@ app.put('/api/updateUser/:id', (req, res) => {
 
 //register teacher
 app.post('/api/teacher/registerTeacher', (req, res) => {
-    console.log(req.body)
     const teacher = new Teacher(req.body);
     teacher.save((err, doc) => {
         if (err) {
@@ -170,6 +171,43 @@ app.put('/api/updateTeacher/:id', (req, res) => {
     })
 })
 
+
+//delete teachesr
+app.get('/api/teacher-delete/:id',(req,res)=>{
+    Teacher.findByIdAndUpdate({_id:req.params.id},{active:false},{new:true},(err,data)=>{
+        if(err) res.status(400).json(err)
+            else res.status(200).json(data)
+    })
+})
+
+
+//save teacher deductions record
+app.post('/api/teacher/deduct',(req,res)=>{
+    const teacherDeduction = new TeacherDeduction(req.body);
+    teacherDeduction.save((err, doc) => {
+        if (err) {
+            res.status(400).json({
+                success: false,
+                err
+            })
+        } else {
+            res.status(200).json({
+                success: true,
+                data: doc
+            })
+        }
+    })
+})
+
+
+
+//get teacher deduction
+app.get('/api/teacher/deduction/:id', (req, res) => {
+     TeacherDeduction.find({ user:req.params.id }).exec((err, data) => {
+        if (err) res.status(400).json(err)
+        else res.status(200).json(data)
+    })
+})
 //posting images
 app.post('/api/uploadimage', formidable(), (req, res) => {
     cloudinary.uploader.upload(req.files.file.path, (result) => {
@@ -183,6 +221,8 @@ app.post('/api/uploadimage', formidable(), (req, res) => {
             resource_type: 'auto'
         })
 })
+
+
 
 
 const port = process.env.PORT || 3002;
