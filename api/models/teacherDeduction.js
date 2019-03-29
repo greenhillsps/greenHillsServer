@@ -16,7 +16,7 @@ const TeacherDeductionSchema=new Schema({
     },
     user:{
         type: ObjectId,
-        ref: 'User',
+        ref: 'Teacher',
         required:true
     },
     date:{

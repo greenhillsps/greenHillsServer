@@ -199,7 +199,7 @@ app.post('/api/teacher/deduct',(req,res)=>{
     })
 })
 
-//get teacher populate deduction
+//get teacher info wiht deductions info
 app.get('/api/teacher/fullRecord', (req, res) => {
     Teacher.find({ active: true }).lean().exec((err, teachers) => {
         if (err) res.status(4000).json(err)
@@ -227,7 +227,13 @@ app.get('/api/teacher/fullRecord', (req, res) => {
 })
 
 
-
+//get detucitons and populate teachers
+app.get('/api/teacher/deductions',(req,res)=>{
+TeacherDeduction.find().populate("user").exec((err,data)=>{
+   if(err) res.status(400).json(err)
+   else res.status(200).json(data)
+})
+})
 
 //posting images
 app.post('/api/uploadimage', formidable(), (req, res) => {
