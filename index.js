@@ -191,48 +191,32 @@ app.post('/api/teacher/deduct',(req,res)=>{
                 err
             })
         } else {
-            res.status(200).json({
-                success: true,
-                data: doc
+            Teacher.findByIdAndUpdate({_id:req.body.user},{$push:{teacherDeduction:doc._id}}).exec((err,data)=>{
+           if(err) res.status(400).json(err)
+            else res.status(200).json(doc)
             })
+           
         }
     })
 })
 
-//get teacher info wiht deductions info
+//get all data of teacher
 app.get('/api/teacher/fullRecord', (req, res) => {
-    Teacher.find({ active: true }).lean().exec((err, teachers) => {
+    Teacher.find({ active: true }).populate("teacherDeduction").lean().exec((err, teachers) => {
         if (err) res.status(4000).json(err)
         else {
-
-            TeacherDeduction.find().lean().exec((err, deduction) => {
-                if (err) res.status(400).json(err)
-                else {
-                    for(var i=0;i<=teachers.length-1;i++){
-                       var deduct=0;
-                        for(var j=0;j<=deduction.length-1;j++){
-                        
-                          if(teachers[i]._id.toString()==deduction[j].user.toString()){
-                              deduct+=deduction[j].amount
-                          }
-                        }
-                        teachers[i].deduction=deduct;
-
-                    }
-                    res.status(200).json(teachers)
-                }
-            })
+          res.status(200).json(teachers)
         }
     })
 })
 
 
-//get detucitons and populate teachers
+//get deductions
 app.get('/api/teacher/deductions',(req,res)=>{
-TeacherDeduction.find().populate("user").exec((err,data)=>{
-   if(err) res.status(400).json(err)
-   else res.status(200).json(data)
-})
+    TeacherDeduction.find().populate("user").exec((err,data)=>{
+        if(err) res.status(400).json(err)
+            else res.status(200).json(data)
+    })
 })
 
 //posting images
