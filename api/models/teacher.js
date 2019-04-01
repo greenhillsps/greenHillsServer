@@ -50,7 +50,14 @@ const teacherSchema=mongoose.Schema({
     active:{
         type:Boolean,
         default:true
-    }
+    },
+    teacherDeduction:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'TeacherDeduction'
+
+        }
+    ]
 })
 
 const Teacher=mongoose.model('Teacher',teacherSchema);
