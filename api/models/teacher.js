@@ -4,6 +4,7 @@ const teacherSchema=mongoose.Schema({
     name:{
         type:String,
         required:true,
+          unique: 1
     },
     fatherName:{
         type:String,

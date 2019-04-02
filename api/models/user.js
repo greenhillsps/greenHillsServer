@@ -7,7 +7,7 @@ require('dotenv').config();
 const userSchema = mongoose.Schema({
     name:{
      required:true,
-     type:String
+     type:String,
     },
     email: {
         type: String,
