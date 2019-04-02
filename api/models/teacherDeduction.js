@@ -19,9 +19,17 @@ const TeacherDeductionSchema=new Schema({
         ref: 'Teacher',
         required:true
     },
-    date:{
+    startDate:{
         type:Date,
         required:true
+    },
+     endDate:{
+        type:Date,
+        required:true
+    },
+    active:{
+        type:Boolean,
+        default:true
     }
    
 })
