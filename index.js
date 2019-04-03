@@ -13,6 +13,7 @@ require('dotenv').config();
 const { User } = require('./api/models/user');
 const Teacher = require('./api/models/teacher');
 const TeacherDeduction = require('./api/models/teacherDeduction');
+const PaySalary = require('./api/models/paySalary');
 
 //mongoose connections
 mongoose.Promise = global.Promise;
@@ -127,7 +128,6 @@ app.get('/api/user-delete/:id', (req, res) => {
 
 //update user
 app.put('/api/updateUser/:id', (req, res) => {
-    console.log(req.body.password)
     User.findByIdAndUpdate({ _id: req.params.id }, { name: req.body.name, email: req.body.email, role: req.body.role, password: req.body.password }, { new: true }, (err, user) => {
         if (err) res.status(400).json(err)
         else res.status(200).json(user)
@@ -202,49 +202,49 @@ app.post('/api/teacher/deduct', (req, res) => {
 
     var saveNewRecord = false;
 
-    TeacherDeduction.find({active:true,deductionType: req.body.deductionType, user: req.body.user }).exec((err, deductions) => {
+    TeacherDeduction.find({ active: true, deductionType: req.body.deductionType, user: req.body.user }).exec((err, deductions) => {
         if (err) return res.status(400).json(err)
         else {
             if (deductions.length) {
-               for(var i=0;i<=deductions.length-1;i++){
-                if (new Date(startDate) > new Date(deductions[i].startDate) && new Date(startDate) > new Date(deductions[i].endDate)) {
-                    saveNewRecord=true
-                }
-                else if (new Date(startDate) < new Date(deductions[i].startDate) && new Date(startDate) < new Date(deductions[i].endDate)) {
-                    if (new Date(endDate) < new Date(deductions[i].startDate) && new Date(endDate) < new Date(deductions[i].endDate)) {
-                        saveNewRecord=true
+                for (var i = 0; i <= deductions.length - 1; i++) {
+                    if (new Date(startDate) > new Date(deductions[i].startDate) && new Date(startDate) > new Date(deductions[i].endDate)) {
+                        saveNewRecord = true
+                    }
+                    else if (new Date(startDate) < new Date(deductions[i].startDate) && new Date(startDate) < new Date(deductions[i].endDate)) {
+                        if (new Date(endDate) < new Date(deductions[i].startDate) && new Date(endDate) < new Date(deductions[i].endDate)) {
+                            saveNewRecord = true
+                        } else {
+                            saveNewRecord = false
+                            break
+                        }
                     } else {
-                        saveNewRecord=false
+                        saveNewRecord = false
                         break
                     }
-                } else {
-                    saveNewRecord=false
-                    break
                 }
-            }
             } else {
-                saveNewRecord=true
+                saveNewRecord = true
             }
 
             //save new deduction
-            if(saveNewRecord){
-            const teacherDeduction = new TeacherDeduction(req.body);
-            teacherDeduction.save((err, doc) => {
-                if (err) {
-                    res.status(400).json({
-                        success: false,
-                        err
-                    })
-                } else {
-                    Teacher.findByIdAndUpdate({ _id: req.body.user }, { $push: { teacherDeduction: doc._id } }).exec((err, data) => {
-                        if (err) res.status(400).json(err)
-                        else res.status(200).json(doc)
-                    })
+            if (saveNewRecord) {
+                const teacherDeduction = new TeacherDeduction(req.body);
+                teacherDeduction.save((err, doc) => {
+                    if (err) {
+                        res.status(400).json({
+                            success: false,
+                            err
+                        })
+                    } else {
+                        Teacher.findByIdAndUpdate({ _id: req.body.user }, { $push: { teacherDeduction: doc._id } }).exec((err, data) => {
+                            if (err) res.status(400).json(err)
+                            else res.status(200).json(doc)
+                        })
 
-                }
-            })
-            }else{
-                return res.status(400).json({message:"Your Entered Date Already Exist"})
+                    }
+                })
+            } else {
+                return res.status(400).json({ message: "Your Entered Date Already Exist" })
             }
 
         }
@@ -255,8 +255,19 @@ app.post('/api/teacher/deduct', (req, res) => {
 
 
 //delete teacher deduction
-app.get('/app/teacher/delete-deduction/:id',(req,res)=>{
- TeacherDeduction.findByIdAndUpdate({ _id: req.params.id }, { active: false }, { new: true }, (err, data) => {
+app.get('/app/teacher/delete-deduction/:id', (req, res) => {
+    TeacherDeduction.findByIdAndUpdate({ _id: req.params.id }, { active: false }, { new: true }, (err, data) => {
+        if (err) res.status(400).json(err)
+        else res.status(200).json(data)
+    })
+})
+
+
+//update deduction
+app.put('/app/teacher/update-deduction/:id', (req, res) => {
+    const { deductionType, amount, user, startDate, endDate, comment } = req.body
+
+    TeacherDeduction.findByIdAndUpdate({ _id: req.params.id }, { deductionType, amount, user, startDate, endDate, comment }, (err, data) => {
         if (err) res.status(400).json(err)
         else res.status(200).json(data)
     })
@@ -264,7 +275,7 @@ app.get('/app/teacher/delete-deduction/:id',(req,res)=>{
 
 //get all data of teacher
 app.get('/api/teacher/fullRecord', (req, res) => {
-    Teacher.find({ active: true }).populate("teacherDeduction").lean().exec((err, teachers) => {
+    Teacher.find({ active: true }).populate("teacherDeduction").populate('paySalary').lean().exec((err, teachers) => {
         if (err) res.status(4000).json(err)
         else {
             res.status(200).json(teachers)
@@ -273,9 +284,39 @@ app.get('/api/teacher/fullRecord', (req, res) => {
 })
 
 
+
+
 //get deductions
 app.get('/api/teacher/deductions', (req, res) => {
-    TeacherDeduction.find({active:true}).populate("user").exec((err, data) => {
+    TeacherDeduction.find({ active: true }).populate("user").exec((err, data) => {
+        if (err) res.status(400).json(err)
+        else res.status(200).json(data)
+    })
+})
+
+
+//post teacher salary
+app.post('/app/teacher/pay-salary', (req, res) => {
+    const paySalary = new PaySalary(req.body);
+    paySalary.save((err, doc) => {
+        if (err) res.status(400).json(err)
+        else {
+            Teacher.findByIdAndUpdate({ _id: req.body.teacher }, { $push: { paySalary: doc._id } }).exec((err, data) => {
+                if (err) res.status(400).json(err)
+                else {
+                    res.status(200).json(doc)
+                }
+            })
+        }
+    })
+})
+
+
+//get paid all salaries
+app.get('/app/teacher/salaries', (req, res) => {
+    //for filter by date 
+    // { paidForMonth: { $gte: from }, paidForMonth: { $lte: to } }
+    PaySalary.find().populate('teacher').exec((err, data) => {
         if (err) res.status(400).json(err)
         else res.status(200).json(data)
     })
