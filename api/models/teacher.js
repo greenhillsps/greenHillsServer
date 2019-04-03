@@ -1,66 +1,73 @@
-const mongoose =require('mongoose');
+const mongoose = require('mongoose');
 
-const teacherSchema=mongoose.Schema({
-    name:{
-        type:String,
-        required:true,
-          unique: 1
+const teacherSchema = mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        unique: 1
     },
-    fatherName:{
-        type:String,
-        required:true
+    fatherName: {
+        type: String,
+        required: true
     },
-    cnic:{
-        type:String,
-        required:true
+    cnic: {
+        type: String,
+        required: true
     },
-    phone:{
-    type:Number,
-    required:true
+    phone: {
+        type: Number,
+        required: true
     },
-    qualification:{
-        type:Array,
-        required:true
+    qualification: {
+        type: Array,
+        required: true
     },
-    experience:{
-        type:String,
+    experience: {
+        type: String,
     },
-    profilePic:{
-   type:String,
+    profilePic: {
+        type: String,
     },
-    joiningDate:{
-        type:Date,
-        required:true
+    joiningDate: {
+        type: Date,
+        required: true
     },
-    tuitionSalary:{
-        type:Number,
-        required:true
+    tuitionSalary: {
+        type: Number,
+        required: true
     },
-    transportSalary:{
-        type:Number,
-        default:0
+    transportSalary: {
+        type: Number,
+        default: 0
     },
-    otherSalary:{
-        type:Number,
-        default:0
+    otherSalary: {
+        type: Number,
+        default: 0
     },
-    totalSalary:{
-        type:Number,
-        required:true
+    totalSalary: {
+        type: Number,
+        required: true
     },
-    active:{
-        type:Boolean,
-        default:true
+    active: {
+        type: Boolean,
+        default: true
     },
-    teacherDeduction:[
+    teacherDeduction: [
         {
-            type:mongoose.Schema.Types.ObjectId,
-            ref:'TeacherDeduction'
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'TeacherDeduction'
 
+        }
+
+    ],
+    paySalary: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'PaySalary'
         }
     ]
 })
 
-const Teacher=mongoose.model('Teacher',teacherSchema);
+const Teacher = mongoose.model('Teacher', teacherSchema);
 
-module.exports=Teacher;
+module.exports = Teacher;
