@@ -19,7 +19,7 @@ const paySalary = mongoose.Schema({
            default:true
         },
 },
-{timestamps:true}
+{timestamps:true} 
 )     
 
 const PaySalary = mongoose.model('PaySalary', paySalary);
