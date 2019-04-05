@@ -94,7 +94,7 @@ app.post('/api/users/login', (req, res) => {
 
 //get users
 app.get('/api/users', (req, res) => {
-    User.find({ active: true }).exec((err, data) => {
+    User.find({ active: true }).sort('-createdAt').exec((err, data) => {
         if (err) res.status(400).json(err)
         else res.status(200).json(data)
     })
@@ -155,7 +155,7 @@ app.post('/api/teacher/registerTeacher', (req, res) => {
 
 //get teacher data
 app.get('/api/teacher', (req, res) => {
-    Teacher.find({ active: true }).exec((err, data) => {
+    Teacher.find({ active: true }).sort('-createdAt').exec((err, data) => {
         if (err) res.status(400).json(err)
         else res.status(200).json(data)
     })
@@ -195,11 +195,11 @@ app.get('/api/teacher-delete/:id', (req, res) => {
 
 //save teacher deductions record
 app.post('/api/teacher/deduct', (req, res) => {
+    console.log(req.body)
     const startDate = new Date(req.body.startDate).setHours(0, 0, 0, 0);
     const endDate = new Date(req.body.endDate).setHours(0, 0, 0, 0)
     req.body.startDate = startDate
     req.body.endDate = endDate
-
     var saveNewRecord = false;
 
     TeacherDeduction.find({ active: true, deductionType: req.body.deductionType, user: req.body.user }).exec((err, deductions) => {
@@ -275,7 +275,7 @@ app.put('/app/teacher/update-deduction/:id', (req, res) => {
 
 //get all data of teacher
 app.get('/api/teacher/fullRecord', (req, res) => {
-    Teacher.find({ active: true }).populate({ path: 'teacherDeduction', match: { active: true } }).populate({ path: 'paySalary', match: { active: true } }).lean().exec((err, teachers) => {
+    Teacher.find({ active: true }).sort('-createdAt').populate({ path: 'teacherDeduction', match: { active: true } }).populate({ path: 'paySalary', match: { active: true } }).lean().exec((err, teachers) => {
         if (err) res.status(4000).json(err)
         else {
             res.status(200).json(teachers)
@@ -288,7 +288,7 @@ app.get('/api/teacher/fullRecord', (req, res) => {
 
 //get deductions
 app.get('/api/teacher/deductions', (req, res) => {
-    TeacherDeduction.find({ active: true }).populate("user").exec((err, data) => {
+    TeacherDeduction.find({ active: true }).populate("user").sort('-createdAt').exec((err, data) => {
         if (err) res.status(400).json(err)
         else res.status(200).json(data)
     })
@@ -297,7 +297,7 @@ app.get('/api/teacher/deductions', (req, res) => {
 
 //post teacher salary
 app.post('/app/teacher/pay-salary', (req, res) => {
-    req.body.paidForMonth=new Date(req.body.paidForMonth);
+    req.body.paidForMonth = new Date(req.body.paidForMonth);
     const paySalary = new PaySalary(req.body);
     paySalary.save((err, doc) => {
         if (err) res.status(400).json(err)
@@ -315,12 +315,25 @@ app.post('/app/teacher/pay-salary', (req, res) => {
 
 //get paid all salaries
 app.get('/app/teacher/salaries', (req, res) => {
-    //for filter by date 
-    // { paidForMonth: { $gte: from }, paidForMonth: { $lte: to } }
-    PaySalary.find().populate({ path: 'teacher', select: '-teacherDeduction -paySalary' }).exec((err, data) => {
-        if (err) res.status(400).json(err)
-        else res.status(200).json(data)
+    const { from, to } = req.query;
+    PaySalary.find({
+        active: true,
     })
+        .populate({ path: 'teacher', select: '-teacherDeduction -paySalary' }).sort('-createdAt')
+        .lean().exec((err, data) => {
+            if (err) res.status(400).json(err)
+            else {
+                var filterDAta = [];
+                if (data.length) {
+                    for (var i = 0; i <= data.length - 1; i++) {
+                        if (data[i].paidForMonth > new Date(from) && data[i].paidForMonth < new Date(to)) {
+                            filterDAta.push(data[i]);
+                        }
+                    }
+                }
+                res.status(200).json(filterDAta)
+            }
+        })
 })
 
 
@@ -335,42 +348,41 @@ app.get('/app/teacher-byId/:id', (req, res) => {
             path: 'teacherDeduction',
             match: {
                 active: true,
-               
+
             }
         })
         .populate({
             path: 'paySalary',
             match: {
-                active: true,   
+                active: true,
             }
         })
-       .lean().exec((err, data) => {
+        .lean().exec((err, data) => {
             if (err) res.status(400).json(err)
-            else{
-                console.log(data)
-            if(data.length){
-             let { teacherDeduction,paySalary }=data[0];
-             let td=[];
-             let ps=[]
-             if(teacherDeduction){
-             for(var i=0;i<=teacherDeduction.length-1;i++){
-
-                 if(teacherDeduction[i].startDate>new Date(from)&&teacherDeduction[i].startDate<new Date(to)){
-                  td.push(teacherDeduction[i]);
-                 }
-             }
-             }
-            if(paySalary){
-                for(var j=0;j<=paySalary.length-1;j++){
-                 if(paySalary[j].paidForMonth>new Date(from)&&paySalary[j].paidForMonth<new Date(to)){
-                  ps.push(paySalary[j]);
-                 }
-             }
-            }
-                data[0].teacherDeduction=td;
-                data[0].paySalary=ps;
-                res.status(200).json(data)
-            }
+            else {
+                if (data.length) {
+                    let { teacherDeduction, paySalary } = data[0];
+                    let td = [];
+                    let ps = []
+                    if (teacherDeduction) {
+                        for (var i = 0; i <= teacherDeduction.length - 1; i++) {
+                            if (teacherDeduction[i].startDate >= new Date(from) && teacherDeduction[i].startDate <= new Date(to)) {
+                              
+                                td.push(teacherDeduction[i]);
+                            }
+                        }
+                    }
+                    if (paySalary) {
+                        for (var j = 0; j <= paySalary.length - 1; j++) {
+                            if (paySalary[j].paidForMonth >= new Date(from) && paySalary[j].paidForMonth <= new Date(to)) {
+                                ps.push(paySalary[j]);
+                            }
+                        }
+                    }
+                    data[0].teacherDeduction = td;
+                    data[0].paySalary = ps;
+                    res.status(200).json(data)
+                }
             }
         })
 })
@@ -380,7 +392,6 @@ app.get('/app/teacher-byId/:id', (req, res) => {
 //posting images
 app.post('/api/uploadimage', formidable(), (req, res) => {
     cloudinary.uploader.upload(req.files.file.path, (result) => {
-        console.log(result);
         res.status(200).send({
             public_id: result.public_id,
             url: result.url
