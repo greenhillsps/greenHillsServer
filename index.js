@@ -196,10 +196,12 @@ app.get('/api/teacher-delete/:id', (req, res) => {
 //save teacher deductions record
 app.post('/api/teacher/deduct', (req, res) => {
     console.log(req.body)
-    const startDate = new Date(req.body.startDate).setHours(0, 0, 0, 0);
-    const endDate = new Date(req.body.endDate).setHours(0, 0, 0, 0)
-    req.body.startDate = startDate
-    req.body.endDate = endDate
+    // const startDate = new Date(req.body.startDate).setHours(0, 0, 0, 0);
+    // const endDate = new Date(req.body.endDate).setHours(0, 0, 0, 0)
+    // req.body.startDate = startDate
+    // req.body.endDate = endDate
+    const startDate = new Date(req.body.startDate);
+    const endDate = new Date(req.body.endDate);
     var saveNewRecord = false;
 
     TeacherDeduction.find({ active: true, deductionType: req.body.deductionType, user: req.body.user }).exec((err, deductions) => {
@@ -366,7 +368,7 @@ app.get('/app/teacher-byId/:id', (req, res) => {
                     let ps = []
                     if (teacherDeduction) {
                         for (var i = 0; i <= teacherDeduction.length - 1; i++) {
-                            if (teacherDeduction[i].startDate >= new Date(from) && teacherDeduction[i].startDate <= new Date(to)) {
+                            if (teacherDeduction[i].startDate > new Date(from) && teacherDeduction[i].startDate < new Date(to)) {
                               
                                 td.push(teacherDeduction[i]);
                             }
