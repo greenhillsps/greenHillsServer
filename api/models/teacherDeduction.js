@@ -32,7 +32,7 @@ const TeacherDeductionSchema=new Schema({
         default:true
     }
    
-})
+},{timestamps:true} )
 
 const Teacher=mongoose.model('TeacherDeduction',TeacherDeductionSchema);
 

@@ -39,7 +39,7 @@ const userSchema = mongoose.Schema({
     }
     
 
-})
+},{timestamps:true} )
 
 //this run before save and then next run the save function
 userSchema.pre('save',function(next){

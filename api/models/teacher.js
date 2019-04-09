@@ -20,7 +20,7 @@ const teacherSchema = mongoose.Schema({
     },
     qualification: {
         type: Array,
-        required: true
+        required: false
     },
     experience: {
         type: String,
@@ -50,8 +50,13 @@ const teacherSchema = mongoose.Schema({
     },
     active: {
         type: Boolean,
-        default: true
+        default: true,
     },
+    teacherId: {
+        type: Number,
+        unique:1
+    },
+    
     teacherDeduction: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -66,7 +71,7 @@ const teacherSchema = mongoose.Schema({
             ref: 'PaySalary'
         }
     ]
-})
+},{timestamps:true} )
 
 const Teacher = mongoose.model('Teacher', teacherSchema);
 
