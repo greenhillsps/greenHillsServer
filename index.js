@@ -14,6 +14,7 @@ const { User } = require('./api/models/user');
 const Teacher = require('./api/models/teacher');
 const TeacherDeduction = require('./api/models/teacherDeduction');
 const PaySalary = require('./api/models/paySalary');
+const TeacherId = require('./api/models/TeacherId');
 
 //mongoose connections
 mongoose.Promise = global.Promise;
@@ -137,21 +138,33 @@ app.put('/api/updateUser/:id', (req, res) => {
 
 //register teacher
 app.post('/api/teacher/registerTeacher', (req, res) => {
-    const teacher = new Teacher(req.body);
-    teacher.save((err, doc) => {
-        if (err) {
-            res.status(400).json({
-                success: false,
-                err
-            })
-        } else {
-            res.status(200).json({
-                success: true,
-                data: doc
+   
+    TeacherId.findOneAndUpdate({}, { $inc: { teacherId: 1 } }, function (err, id) {
+        if (err) res.status(400).json(err)
+        else {
+            req.body.teacherId=id.teacherId;
+            const teacher = new Teacher(req.body);
+            teacher.save((err, doc) => {
+                if (err) {
+                    res.status(400).json({
+                        success: false,
+                        err
+                    })
+                } else {
+                    res.status(200).json({
+                        success: true,
+                        data: doc
+                    })
+                }
             })
         }
     })
+
+
 })
+
+
+
 
 //get teacher data
 app.get('/api/teacher', (req, res) => {
@@ -277,12 +290,52 @@ app.put('/app/teacher/update-deduction/:id', (req, res) => {
 
 //get all data of teacher
 app.get('/api/teacher/fullRecord', (req, res) => {
-    Teacher.find({ active: true }).sort('-createdAt').populate({ path: 'teacherDeduction', match: { active: true } }).populate({ path: 'paySalary', match: { active: true } }).lean().exec((err, teachers) => {
-        if (err) res.status(4000).json(err)
-        else {
-            res.status(200).json(teachers)
-        }
-    })
+    const { from, to } = req.query;
+    Teacher.find({ active: true })
+        .populate({
+            path: 'teacherDeduction',
+            match: {
+                active: true,
+
+            }
+        })
+        .populate({
+            path: 'paySalary',
+            match: {
+                active: true,
+            }
+        })
+        .lean().exec((err, data) => {
+            if (err) res.status(400).json(err)
+            else {
+                if (data.length) {
+                    for (var k = 0; k <= data.length - 1; k++) {
+                        let { teacherDeduction, paySalary } = data[k];
+                        let td = [];
+                        let ps = []
+                        if (teacherDeduction) {
+                            for (var i = 0; i <= teacherDeduction.length - 1; i++) {
+                                if (teacherDeduction[i].startDate > new Date(from) && teacherDeduction[i].startDate < new Date(to)) {
+
+                                    td.push(teacherDeduction[i]);
+                                }
+                            }
+                        }
+                        if (paySalary) {
+                            for (var j = 0; j <= paySalary.length - 1; j++) {
+                                if (paySalary[j].paidForMonth >= new Date(from) && paySalary[j].paidForMonth <= new Date(to)) {
+                                    ps.push(paySalary[j]);
+                                }
+                            }
+                        }
+                        data[k].teacherDeduction = td;
+                        data[k].paySalary = ps;
+                    }
+                }
+                res.status(200).json(data)
+
+            }
+        })
 })
 
 
@@ -345,7 +398,7 @@ app.get('/app/teacher/salaries', (req, res) => {
 //find paid salaries record by id and date
 app.get('/app/teacher-byId/:id', (req, res) => {
     const { from, to } = req.query;
-    Teacher.find({ _id: req.params.id })
+    Teacher.find({ _id: req.params.id, active: true })
         .populate({
             path: 'teacherDeduction',
             match: {
@@ -369,7 +422,7 @@ app.get('/app/teacher-byId/:id', (req, res) => {
                     if (teacherDeduction) {
                         for (var i = 0; i <= teacherDeduction.length - 1; i++) {
                             if (teacherDeduction[i].startDate > new Date(from) && teacherDeduction[i].startDate < new Date(to)) {
-                              
+
                                 td.push(teacherDeduction[i]);
                             }
                         }
