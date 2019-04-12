@@ -165,7 +165,13 @@ app.post('/api/teacher/registerTeacher', (req, res) => {
 
 
 
-
+//get teacher id
+app.get('/api/teacher/id',(req,res)=>{
+    TeacherId.find().exec((err,doc)=>{
+        if(err) res.status(400).json(err)
+            else res.status(200).json(doc)
+    })
+})
 //get teacher data
 app.get('/api/teacher', (req, res) => {
     Teacher.find({ active: true }).sort('-createdAt').exec((err, data) => {
