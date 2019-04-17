@@ -314,6 +314,10 @@ app.get('/api/teacher/fullRecord', (req, res) => {
         .lean().exec((err, data) => {
             if (err) res.status(400).json(err)
             else {
+             if(from==''&&to==''){
+                 res.status(200).json(data)
+                 return
+             }
                 if (data.length) {
                     for (var k = 0; k <= data.length - 1; k++) {
                         let { teacherDeduction, paySalary } = data[k];
@@ -421,6 +425,11 @@ app.get('/app/teacher-byId/:id', (req, res) => {
         .lean().exec((err, data) => {
             if (err) res.status(400).json(err)
             else {
+
+                 if(from==''&&to==''){
+                 res.status(200).json(data)
+                 return
+             }
                 if (data.length) {
                     let { teacherDeduction, paySalary } = data[0];
                     let td = [];
