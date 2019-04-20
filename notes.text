@@ -38,3 +38,10 @@ email:greenhillsps.edu@gmail.com
 user:greenhillsps
 pass: Greenhills@123
 
+
+/////////////////////////
+         errors
+/////////////////////////
+1) when we update node 7 to 8 then generate error for fix that error 
+we update sass file using command.
+npm rebuild node-sass

@@ -10,11 +10,13 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 
+////////// teacher modals //////////////////
 const { User } = require('./api/models/user');
 const Teacher = require('./api/models/teacher');
 const TeacherDeduction = require('./api/models/teacherDeduction');
 const PaySalary = require('./api/models/paySalary');
 const TeacherId = require('./api/models/TeacherId');
+const Increment =require("./api/models/increment");
 
 //mongoose connections
 mongoose.Promise = global.Promise;
@@ -138,11 +140,11 @@ app.put('/api/updateUser/:id', (req, res) => {
 
 //register teacher
 app.post('/api/teacher/registerTeacher', (req, res) => {
-   
+
     TeacherId.findOneAndUpdate({}, { $inc: { teacherId: 1 } }, function (err, id) {
         if (err) res.status(400).json(err)
         else {
-            req.body.teacherId=id.teacherId;
+            req.body.teacherId = id.teacherId;
             const teacher = new Teacher(req.body);
             teacher.save((err, doc) => {
                 if (err) {
@@ -166,10 +168,10 @@ app.post('/api/teacher/registerTeacher', (req, res) => {
 
 
 //get teacher id
-app.get('/api/teacher/id',(req,res)=>{
-    TeacherId.find().exec((err,doc)=>{
-        if(err) res.status(400).json(err)
-            else res.status(200).json(doc)
+app.get('/api/teacher/id', (req, res) => {
+    TeacherId.find().exec((err, doc) => {
+        if (err) res.status(400).json(err)
+        else res.status(200).json(doc)
     })
 })
 //get teacher data
@@ -314,10 +316,10 @@ app.get('/api/teacher/fullRecord', (req, res) => {
         .lean().exec((err, data) => {
             if (err) res.status(400).json(err)
             else {
-             if(from==''&&to==''){
-                 res.status(200).json(data)
-                 return
-             }
+                if (from == '' && to == '') {
+                    res.status(200).json(data)
+                    return
+                }
                 if (data.length) {
                     for (var k = 0; k <= data.length - 1; k++) {
                         let { teacherDeduction, paySalary } = data[k];
@@ -426,10 +428,10 @@ app.get('/app/teacher-byId/:id', (req, res) => {
             if (err) res.status(400).json(err)
             else {
 
-                 if(from==''&&to==''){
-                 res.status(200).json(data)
-                 return
-             }
+                if (from == '' && to == '') {
+                    res.status(200).json(data)
+                    return
+                }
                 if (data.length) {
                     let { teacherDeduction, paySalary } = data[0];
                     let td = [];
@@ -451,12 +453,24 @@ app.get('/app/teacher-byId/:id', (req, res) => {
                     }
                     data[0].teacherDeduction = td;
                     data[0].paySalary = ps;
-                    res.status(200).json(data)
                 }
+                res.status(200).json(data)
+
             }
         })
 })
 
+
+//////////*******************/////////////
+        //increment salary///
+/////////*******************//////////////
+app.post('/api/teacher/increment',(req,res)=>{
+   const increment=new Increment(req.body);
+   increment.save((err,doc)=>{
+       if(err) res.status(400).json(err)
+        else res.status(200).json(doc)
+   })
+})
 
 
 //posting images
