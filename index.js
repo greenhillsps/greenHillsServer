@@ -16,7 +16,7 @@ const Teacher = require('./api/models/teacher');
 const TeacherDeduction = require('./api/models/teacherDeduction');
 const PaySalary = require('./api/models/paySalary');
 const TeacherId = require('./api/models/TeacherId');
-const Increment =require("./api/models/increment");
+const Increment = require("./api/models/increment");
 
 //mongoose connections
 mongoose.Promise = global.Promise;
@@ -118,6 +118,7 @@ app.get('/api/user-delete/:id', (req, res) => {
         else res.status(200).json(user)
     })
 })
+
 
 // //get students
 // app.get('/students/:name',(req,res)=>{
@@ -404,7 +405,13 @@ app.get('/app/teacher/salaries', (req, res) => {
 })
 
 
-
+//delete teacher salary
+app.get('/api/teacher-delete/salary/:id', (req, res) => {
+    PaySalary.findByIdAndUpdate({ _id: req.params.id }, { active: false }, { new: true }, (err, data) => {
+        if (err) res.status(400).json(err)
+        else res.status(200).json(data)
+    })
+})
 
 
 //find paid salaries record by id and date
@@ -462,16 +469,29 @@ app.get('/app/teacher-byId/:id', (req, res) => {
 
 
 //////////*******************/////////////
-        //increment salary///
+//increment salary///
 /////////*******************//////////////
-app.post('/api/teacher/increment',(req,res)=>{
-   const increment=new Increment(req.body);
-   increment.save((err,doc)=>{
-       if(err) res.status(400).json(err)
+app.post('/api/teacher/increment', (req, res) => {
+    const increment = new Increment(req.body);
+    increment.save((err, doc) => {
+        if (err) res.status(400).json(err)
         else res.status(200).json(doc)
-   })
+    })
 })
 
+app.get('/api/teacher/increment', (req, res) => {
+    Increment.find({ active: true })
+        .populate({
+            path: 'teacher',
+            match: {
+                active: true,
+
+            }
+        }).exec((err, data) => {
+            if (err) res.status(400).json(err)
+            else res.status(200).json(data)
+        })
+})
 
 //posting images
 app.post('/api/uploadimage', formidable(), (req, res) => {
