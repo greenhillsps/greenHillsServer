@@ -9,6 +9,8 @@ const app = express();
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+const { countSalary } = require('./helper')
+
 
 ////////// teacher modals //////////////////
 const { User } = require('./api/models/user');
@@ -63,31 +65,32 @@ app.post('/api/users/register', (req, res) => {
 
 //login
 app.post('/api/users/login', (req, res) => {
+
     //find the email
     //check password
     //generate a token
     User.findOne({ 'email': req.body.email }, (err, user) => {
         if (!user) return res.status(400).json({ loginSuccess: false, message: 'Auth failed, email not found' })
 
-        if (req.body.password != user.password) {
-            return res.status(400).json({ loginSuccess: false, message: 'Wrong password' });
+        user.comparePassword(req.body.password, (err, isMatch) => {
+            if (!isMatch) return res.json({ loginSuccess: false, message: 'Wrong password' });
+            else if (user.blocked) {
 
-        }
+                return res.status(400).json({ loginSuccess: false, message: 'Blocked By Admin' });
 
-        else if (user.blocked) {
-
-            return res.status(400).json({ loginSuccess: false, message: 'Blocked By Admin' });
-
-        }
-        else {
-            //generate token
-            user.generateToken((err, user) => {
-                if (err) return res.status(400).send(err);
-                res.status(200).json(user)
-            })
+            }
+            else {
+                //generate token
+                user.generateToken((err, user) => {
+                    if (err) return res.status(400).send(err);
+                    res.status(200).json(user)
+                })
 
 
-        }
+            }
+        })
+
+
     })
 
 
@@ -175,9 +178,34 @@ app.get('/api/teacher/id', (req, res) => {
         else res.status(200).json(doc)
     })
 })
+
+//post new teacher id
+app.post('/api/teacherId', (req, res) => {
+    console.log(req.body)
+    const newId = new TeacherId(req.body);
+    newId.save((err, doc) => {
+        if (err) {
+            res.status(400).json({
+                success: false,
+                err
+            })
+        } else {
+            res.status(200).json({
+                success: true,
+                data: doc
+            })
+        }
+    })
+})
 //get teacher data
 app.get('/api/teacher', (req, res) => {
-    Teacher.find({ active: true }).sort('-createdAt').exec((err, data) => {
+    Teacher.find({ active: true }).populate({
+        path: 'salary',
+        match: {
+            active: true,
+
+        }
+    }).sort('-createdAt').exec((err, data) => {
         if (err) res.status(400).json(err)
         else res.status(200).json(data)
     })
@@ -472,11 +500,45 @@ app.get('/app/teacher-byId/:id', (req, res) => {
 //increment salary///
 /////////*******************//////////////
 app.post('/api/teacher/increment', (req, res) => {
-    const increment = new Increment(req.body);
-    increment.save((err, doc) => {
+    const { teacher, setPreviousEndDate } = req.body;
+
+    //find by id
+    Increment.find({ teacher: teacher, active: true }).lean().exec((err, data) => {
         if (err) res.status(400).json(err)
-        else res.status(200).json(doc)
+        else {
+
+            var getData = data.length ? data[data.length - 1] : null;
+            req.body.grossSalary = countSalary(data, req.body.totalSalary)
+
+            if (getData != null) {
+                Increment.findByIdAndUpdate({ _id: getData._id }, {
+                    incrementToMoth: setPreviousEndDate,
+                }, { new: true }, (err, data) => {
+                    if (err) res.status(400).json(err)
+
+                })
+            }
+
+            const increment = new Increment(req.body);
+
+
+            increment.save((err, doc) => {
+                if (err) res.status(400).json(err)
+                else {
+                    Teacher.findByIdAndUpdate({ _id: teacher }, { $push: { salary: doc._id } }).exec((err, data) => {
+                        if (err) res.status(400).json(err)
+                        else {
+                            res.status(200).json(doc)
+                        }
+                    })
+                }
+            })
+        }
     })
+
+
+
+
 })
 
 app.get('/api/teacher/increment', (req, res) => {

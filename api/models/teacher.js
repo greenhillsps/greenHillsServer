@@ -32,22 +32,7 @@ const teacherSchema = mongoose.Schema({
         type: Date,
         required: true
     },
-    tuitionSalary: {
-        type: Number,
-        required: true
-    },
-    transportSalary: {
-        type: Number,
-        default: 0
-    },
-    otherSalary: {
-        type: Number,
-        default: 0
-    },
-    totalSalary: {
-        type: Number,
-        required: true
-    },
+  
     active: {
         type: Boolean,
         default: true,
@@ -64,6 +49,12 @@ const teacherSchema = mongoose.Schema({
 
         }
 
+    ],
+     salary: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Increment'
+        }
     ],
     paySalary: [
         {
