@@ -22,10 +22,7 @@ const increment = mongoose.Schema({
         type: Number,
         required: true
     },
-    grossSalary:{
-    type:Number,
-    required:true
-    },
+  
       incrementFromMonth:{
           type:Date,
           require:true

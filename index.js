@@ -508,7 +508,6 @@ app.post('/api/teacher/increment', (req, res) => {
         else {
 
             var getData = data.length ? data[data.length - 1] : null;
-            req.body.grossSalary = countSalary(data, req.body.totalSalary)
 
             if (getData != null) {
                 Increment.findByIdAndUpdate({ _id: getData._id }, {
@@ -542,6 +541,7 @@ app.post('/api/teacher/increment', (req, res) => {
 })
 
 app.get('/api/teacher/increment', (req, res) => {
+    const { from, to } = req.query;
     Increment.find({ active: true })
         .populate({
             path: 'teacher',
@@ -549,10 +549,34 @@ app.get('/api/teacher/increment', (req, res) => {
                 active: true,
 
             }
-        }).exec((err, data) => {
+        }).lean().exec((err, data) => {
             if (err) res.status(400).json(err)
-            else res.status(200).json(data)
+            else {
+                var filterDAta = [];
+                if (data.length) {
+                    for (var i = 0; i <= data.length - 1; i++) {
+                        // if (data[i].incrementFromMonth > new Date(from) && data[i].incrementFromMonth < new Date(to)) {
+                        //     filterDAta.push(data[i]);
+                        // }
+                        filterDAta.push(data[i]);
+                        filterDAta[i].grossSalary=countSalary(filterDAta)
+
+                    }
+                }
+                res.status(200).json(filterDAta)
+            }
         })
+})
+
+//deleting increment data
+//delete teachesr
+app.get('/api/teacher/increment-delete/:id', (req, res) => {
+    Increment.findByIdAndUpdate({ _id: req.params.id }, { active: false }, { new: true }, (err, data) => {
+        if (err) res.status(400).json(err)
+        else {
+            res.status(200).json(data)
+        }
+    })
 })
 
 //posting images
