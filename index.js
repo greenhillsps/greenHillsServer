@@ -9,7 +9,7 @@ const app = express();
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const { countSalary } = require('./helper')
+const { countSalary, isSameMonth,numberOfMonth } = require('./helper')
 
 
 ////////// teacher modals //////////////////
@@ -342,6 +342,13 @@ app.get('/api/teacher/fullRecord', (req, res) => {
                 active: true,
             }
         })
+        .populate({
+            path: 'salary',
+            match: {
+                active: true,
+
+            }
+        })
         .lean().exec((err, data) => {
             if (err) res.status(400).json(err)
             else {
@@ -500,7 +507,7 @@ app.get('/app/teacher-byId/:id', (req, res) => {
 //increment salary///
 /////////*******************//////////////
 app.post('/api/teacher/increment', (req, res) => {
-    const { teacher, setPreviousEndDate } = req.body;
+    const { teacher, setPreviousEndDate, incrementFromMonth } = req.body;
 
     //find by id
     Increment.find({ teacher: teacher, active: true }).lean().exec((err, data) => {
@@ -508,7 +515,9 @@ app.post('/api/teacher/increment', (req, res) => {
         else {
 
             var getData = data.length ? data[data.length - 1] : null;
-
+            if (!isSameMonth(data, incrementFromMonth)) {
+                return res.status(401).json({ message: 'This month already exist' })
+            }
             if (getData != null) {
                 Increment.findByIdAndUpdate({ _id: getData._id }, {
                     incrementToMoth: setPreviousEndDate,
@@ -552,18 +561,20 @@ app.get('/api/teacher/increment', (req, res) => {
         }).lean().exec((err, data) => {
             if (err) res.status(400).json(err)
             else {
-                var filterDAta = [];
+                var filterData = [];    
                 if (data.length) {
                     for (var i = 0; i <= data.length - 1; i++) {
-                        // if (data[i].incrementFromMonth > new Date(from) && data[i].incrementFromMonth < new Date(to)) {
-                        //     filterDAta.push(data[i]);
-                        // }
-                        filterDAta.push(data[i]);
-                        filterDAta[i].grossSalary=countSalary(filterDAta)
+                        if (numberOfMonth(new Date(data[i].incrementFromMonth)) <=numberOfMonth(new Date(from))&&numberOfMonth(new Date(data[i].incrementToMoth)) >=numberOfMonth(new Date(from))) {
+                            data[i].grossSalary = countSalary([...filterData,data[i]])
+                            filterData.push(data[i]);
+                            //console.log(filterData)
+                            
+                        } 
+
 
                     }
                 }
-                res.status(200).json(filterDAta)
+                res.status(200).json(filterData)
             }
         })
 })
