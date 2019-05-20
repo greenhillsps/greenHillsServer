@@ -507,23 +507,26 @@ app.get('/app/teacher-byId/:id', (req, res) => {
 //increment salary///
 /////////*******************//////////////
 app.post('/api/teacher/increment', (req, res) => {
-    const { teacher, setPreviousEndDate, incrementFromMonth } = req.body;
-
+    const { teacher, setPreviousEndDate, incrementFromMonth,grossSalary } = req.body;
     //find by id
     Increment.find({ teacher: teacher, active: true }).lean().exec((err, data) => {
         if (err) res.status(400).json(err)
         else {
 
             var getData = data.length ? data[data.length - 1] : null;
-            if (!isSameMonth(data, incrementFromMonth)) {
-                return res.status(401).json({ message: 'This month already exist' })
-            }
+            
             if (getData != null) {
+
+                if (numberOfMonth(new Date(incrementFromMonth))<=numberOfMonth(new Date(data[data.length-1].incrementFromMonth))) {
+                    return res.status(401).json({ message: 'This month already exist' })
+            }
+
+                req.body.grossSalary+=data[data.length-1].grossSalary;
                 Increment.findByIdAndUpdate({ _id: getData._id }, {
-                    incrementToMoth: setPreviousEndDate,
+                    incrementToMonth: setPreviousEndDate,
                 }, { new: true }, (err, data) => {
                     if (err) res.status(400).json(err)
-
+                 
                 })
             }
 
@@ -564,8 +567,12 @@ app.get('/api/teacher/increment', (req, res) => {
                 var filterData = [];    
                 if (data.length) {
                     for (var i = 0; i <= data.length - 1; i++) {
-                        if (numberOfMonth(new Date(data[i].incrementFromMonth)) <=numberOfMonth(new Date(from))&&numberOfMonth(new Date(data[i].incrementToMoth)) >=numberOfMonth(new Date(from))) {
-                            data[i].grossSalary = countSalary([...filterData,data[i]])
+                        if(numberOfMonth(new Date(data[data.length-1].incrementFromMonth))<numberOfMonth(new Date(from))){
+                             break
+                             return
+                        }
+                        if ((numberOfMonth(new Date(data[i].incrementFromMonth)) <=numberOfMonth(new Date(from))&&numberOfMonth(new Date(data[i].incrementToMonth)) >=numberOfMonth(new Date(from))) ) {
+                           // data[i].grossSalary = countSalary([...filterData,data[i]])
                             filterData.push(data[i]);
                             //console.log(filterData)
                             
@@ -585,7 +592,20 @@ app.get('/api/teacher/increment-delete/:id', (req, res) => {
     Increment.findByIdAndUpdate({ _id: req.params.id }, { active: false }, { new: true }, (err, data) => {
         if (err) res.status(400).json(err)
         else {
-            res.status(200).json(data)
+           var updateDate='';
+            Increment.find({active:true}).exec((err,doc)=>{
+             if(err) return res.status(400).json(err)
+                else{
+                  if(doc.length){
+                  Increment.findByIdAndUpdate({_id:doc[doc.length-1]._id},{incrementToMonth:doc[doc.length-1].incrementFromMonth},{new:true},(err,upData)=>{
+                      if(err) return res.status(400).json(err)
+                        else res.status(200).json(upData)
+                  })
+                  }else{
+                      return res.status(200).json(data)
+                  }
+                }
+            })
         }
     })
 })

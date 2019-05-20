@@ -12,12 +12,16 @@ exports.countSalary=(arr)=>{
 exports.isSameMonth=(arr,date)=>{
    
    var allow=true
-   for(var i=0;i<=arr.length-1;i++){
-    if(monthAndYear(arr[i].incrementFromMonth)===monthAndYear(date)){
-        allow=false;
-        break
-    }
-   }
+//    for(var i=0;i<=arr.length-1;i++){
+//     if(monthAndYear(arr[i].incrementFromMonth)===monthAndYear(date)){
+//         allow=false;
+//         break
+//     }     
+//    }
+if(monthAndYear(arr[arr.length-1].incrementFromMonth)>=monthAndYear(date)){
+    console.log(monthAndYear(arr[arr.length-1].incrementFromMonth),"--",monthAndYear(date))
+    allow=false
+}
 return allow
 }
 
@@ -27,5 +31,5 @@ monthAndYear=(data)=>{
 
 //find number of month by date
 exports.numberOfMonth=(date)=>{
-return moment().month(moment(date).format('MMMM')).format("M")
+return +moment().month(moment(date).format('MMMM')).format("M")
 }
