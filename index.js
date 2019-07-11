@@ -46,6 +46,59 @@ cloudinary.config({
 
 
 
+
+////ali work resgister user data
+//regiseter
+const { Ali } = require('./api/models/Ali');
+app.post('/api/nawabmuqsitali/users/register', (req, res) => {
+    const user = new Ali(req.body);
+    user.save((err, doc) => {
+        if (err) {
+            res.status(400).json({
+                success: false,
+                err
+            })
+        } else {
+            res.status(200).json({
+                success: true,
+                //userdata:doc
+            })
+        }
+    })
+})
+//ali find user login
+//login
+app.post('/api/nawabmuqsitali/users/login', (req, res) => {
+
+    //find the email
+    //check password
+    //generate a token
+    Ali.findOne({ 'email': req.body.email }, (err, user) => {
+        if (!user) return res.status(400).json({ loginSuccess: false, message: 'Auth failed, email not found' })
+
+        user.comparePassword(req.body.password, (err, isMatch) => {
+            if (!isMatch) return res.json({ loginSuccess: false, message: 'Wrong password' });
+            else if (user.blocked) {
+
+                return res.status(400).json({ loginSuccess: false, message: 'Blocked By Admin' });
+
+            }
+            else {
+                //generate token
+                user.generateToken((err, user) => {
+                    if (err) return res.status(400).send(err);
+                    res.status(200).json(user)
+                })
+
+
+            }
+        })
+
+
+    })
+
+})
+
 //regiseter
 app.post('/api/users/register', (req, res) => {
     const user = new User(req.body);
