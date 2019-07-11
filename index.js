@@ -20,9 +20,8 @@ const PaySalary = require('./api/models/paySalary');
 const TeacherId = require('./api/models/TeacherId');
 const Increment = require("./api/models/increment");
 
-///ali modal+=============
+///ali modal for test
 const { Ali } = require('./api/models/ali');
-
 
 //mongoose connections
 mongoose.Promise = global.Promise;
