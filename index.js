@@ -49,7 +49,7 @@ cloudinary.config({
 
 ////ali work resgister user data
 //regiseter
-const { Ali } = require('./api/models/Ali');
+const { Ali } = require('./api/models/ali');
 app.post('/api/nawabmuqsitali/users/register', (req, res) => {
     const user = new Ali(req.body);
     user.save((err, doc) => {
