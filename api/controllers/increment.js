@@ -9,7 +9,7 @@ exports.postIncrement=(req, res) => {
     Increment.find({ teacher: teacher, active: true }).lean().exec((err, data) => {
         if (err) res.status(400).json(err)
         else {
-
+          console.log(data)
             var getData = data.length ? data[data.length - 1] : null;
             
             if (getData != null) {
