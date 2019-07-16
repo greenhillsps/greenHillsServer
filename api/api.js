@@ -56,7 +56,7 @@ apiRoutes.post('/teacher/increment',Increment.postIncrement);
 //get all increment records by date filter
 apiRoutes.get('/teacher/increment',Increment.getIncrement);
 //deactivate teacher increment
-apiRoutes.get('/teacher/increment-delete/:id',Increment.getIncrement);
+apiRoutes.get('/teacher/increment-delete/:id',Increment.deactivateTeacherIncrement);
 
 
 

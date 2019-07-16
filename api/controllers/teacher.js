@@ -219,7 +219,7 @@ exports.getTeacherById=(req, res) => {
 
                     if(salary){
                         for (var l = 0; l <= salary.length - 1; l++) {
-                            if(numberOfMonth(from)<=numberOfMonth(salary[l].incrementFromMonth)&&numberOfMonth(to)>=numberOfMonth(salary[l].incrementToMonth)){
+                            if(numberOfMonth(new Date(from))<=numberOfMonth(new Date(salary[l].incrementFromMonth))&&numberOfMonth(new Date(to))>=numberOfMonth(new Date(salary[l].incrementToMonth))){
                               filterSalary.push(salary[l]);
                             }
                         }

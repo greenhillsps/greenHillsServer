@@ -1,4 +1,4 @@
-const User = require('../models/user');
+const {User} = require('../models/user');
 
 //register new user that may be admin or data entry level
  exports.registerUser=(req, res) => {
