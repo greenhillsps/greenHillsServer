@@ -1,8 +1,8 @@
 const TeacherDeduction=require('../models/teacherDeduction');
+const Teacher=require('../models/teacher');
 
 //save teacher deductions record
 exports.postTeacherDeductions=(req, res) => {
-    console.log(req.body)
     // const startDate = new Date(req.body.startDate).setHours(0, 0, 0, 0);
     // const endDate = new Date(req.body.endDate).setHours(0, 0, 0, 0)
     // req.body.startDate = startDate

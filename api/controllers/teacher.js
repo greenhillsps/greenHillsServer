@@ -79,11 +79,12 @@ exports.deactivateTeacher = (req, res) => {
 exports.getTeachersByDateFilter = (req, res) => {
     const { from, to } = req.query;
     console.log(new Date(from))
-    Teacher.find({ active: true,})
+    Teacher.find({ active: true, joiningDate:{$lte:from}})
         .populate({
             path: 'teacherDeduction',
             match: {
                 active: true,
+                
 
             }
         })
@@ -97,8 +98,8 @@ exports.getTeachersByDateFilter = (req, res) => {
             path: 'salary',
             match: {
                 active: true,
-                // incrementFromMonth: {$lte:new Date(from)},
-                // incrementToMonth: {$lte:new Date(to)}
+                incrementFromMonth: {$lte:from},
+                //incrementToMonth: {$gte:from}
             }
         })
         .lean().exec((err, data) => {
@@ -144,7 +145,7 @@ exports.getTeachersByDateFilter = (req, res) => {
                       
                         data[k].teacherDeduction = td;
                         data[k].paySalary = ps;
-                        data[k].salary = filterSalary;
+                       // data[k].salary = filterSalary;
                     }
                 }
                 res.status(200).json(data)
