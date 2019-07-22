@@ -32,6 +32,10 @@ const teacherSchema = mongoose.Schema({
         type: Date,
         required: true
     },
+    joiningMonth: {
+        type: Date,
+        required: true
+    },
   
     active: {
         type: Boolean,

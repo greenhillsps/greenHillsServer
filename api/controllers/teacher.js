@@ -79,7 +79,8 @@ exports.deactivateTeacher = (req, res) => {
 exports.getTeachersByDateFilter = (req, res) => {
     const { from, to } = req.query;
     console.log(new Date(from))
-    Teacher.find({ active: true, joiningDate:{$lte:from}})
+    Teacher.find({ active: true,
+         joiningMonth:{$lte:from}})
         .populate({
             path: 'teacherDeduction',
             match: {
@@ -100,7 +101,7 @@ exports.getTeachersByDateFilter = (req, res) => {
                 active: true,
                 incrementFromMonth: {$lte:from},
                 //incrementToMonth: {$gte:from}
-            }
+            }   
         })
         .lean().exec((err, data) => {
             if (err) res.status(400).json(err)
@@ -109,6 +110,7 @@ exports.getTeachersByDateFilter = (req, res) => {
                     res.status(200).json(data)
                     return
                 }
+                
                 if (data.length) {
                     for (var k = 0; k <= data.length - 1; k++) {
                         let { teacherDeduction, paySalary, salary } = data[k];
@@ -178,6 +180,8 @@ exports.getTeacherById = (req, res) => {
             path: 'salary',
             match: {
                 active: true,
+               //incrementFromMonth: {$lte:from},
+               // incrementToMonth: {$gte:to}
             }
         })
         .lean().exec((err, data) => {
@@ -210,11 +214,8 @@ exports.getTeacherById = (req, res) => {
                     }
                      if (salary) {
                             for (var l = 0; l <= salary.length - 1; l++) {
-                                 if(numberOfMonth(new Date(salary[salary.length-1].incrementFromMonth))<numberOfMonth(new Date(to))){
-                             break
-                             return
-                        }
-                        if ((numberOfMonth(new Date(salary[l].incrementFromMonth)) <=numberOfMonth(new Date(to))&&numberOfMonth(new Date(salary[l].incrementToMonth)) >=numberOfMonth(new Date(to))) ) {
+                          
+                        if ((salary[l].incrementFromMonth) >=from&&salary[l].incrementToMonth <=to) {
                             filterSalary.push(salary[l]);
 
                         } 
@@ -223,7 +224,7 @@ exports.getTeacherById = (req, res) => {
 
                     data[0].teacherDeduction = td;
                     data[0].paySalary = ps;
-                    data[0].salary = filterSalary
+                   data[0].salary = filterSalary
                 }
                 res.status(200).json(data)
 
