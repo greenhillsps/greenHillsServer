@@ -4,27 +4,21 @@ const { numberOfMonth } = require('../../helper')
 
 //post increment record
 exports.postIncrement=(req, res) => {
-    const { teacher, setPreviousEndDate, incrementFromMonth,grossSalary } = req.body;
+    const { teacher, incrementDate,grossSalary } = req.body;
     //find by id
     Increment.find({ teacher: teacher, active: true }).lean().exec((err, data) => {
         if (err) res.status(400).json(err)
         else {
-          console.log(data)
             var getData = data.length ? data[data.length - 1] : null;
             
             if (getData != null) {
 
-                if (numberOfMonth(new Date(incrementFromMonth))<=numberOfMonth(new Date(data[data.length-1].incrementFromMonth))) {
+                if (numberOfMonth(new Date(incrementDate))<=numberOfMonth(new Date(data[data.length-1].incrementDate))) {
                     return res.status(401).json({ message: 'This month already exist' })
             }
 
                 req.body.grossSalary+=data[data.length-1].grossSalary;
-                Increment.findByIdAndUpdate({ _id: getData._id }, {
-                    incrementToMonth: setPreviousEndDate,
-                }, { new: true }, (err, data) => {
-                    if (err) res.status(400).json(err)
-                 
-                })
+                
             }
 
             const increment = new Increment(req.body);

@@ -99,7 +99,7 @@ exports.getTeachersByDateFilter = (req, res) => {
             path: 'salary',
             match: {
                 active: true,
-                incrementFromMonth: {$lte:from},
+                incrementDate: {$lte:from},
                 //incrementToMonth: {$gte:from}
             }   
         })
@@ -116,7 +116,6 @@ exports.getTeachersByDateFilter = (req, res) => {
                         let { teacherDeduction, paySalary, salary } = data[k];
                         let td = [];
                         let ps = [];
-                        let filterSalary = []
                         if (teacherDeduction) {
                             for (var i = 0; i <= teacherDeduction.length - 1; i++) {
                                 if (teacherDeduction[i].startDate > new Date(from) && teacherDeduction[i].startDate < new Date(to)) {
@@ -132,22 +131,10 @@ exports.getTeachersByDateFilter = (req, res) => {
                                 }
                             }
                         }
-                         if (salary) {
-                            for (var l = 0; l <= salary.length - 1; l++) {
-                                 if(numberOfMonth(new Date(salary[salary.length-1].incrementFromMonth))<numberOfMonth(new Date(from))){
-                             break
-                             return
-                        }
-                        if ((numberOfMonth(new Date(salary[l].incrementFromMonth)) <=numberOfMonth(new Date(from))&&numberOfMonth(new Date(salary[l].incrementToMonth)) >=numberOfMonth(new Date(from))) ) {
-                            filterSalary.push(salary[l]);
-
-                        } 
-                            }
-                        }
+                        
                       
                         data[k].teacherDeduction = td;
                         data[k].paySalary = ps;
-                       // data[k].salary = filterSalary;
                     }
                 }
                 res.status(200).json(data)
@@ -180,8 +167,7 @@ exports.getTeacherById = (req, res) => {
             path: 'salary',
             match: {
                 active: true,
-               //incrementFromMonth: {$lte:from},
-               // incrementToMonth: {$gte:to}
+               incrementDate: {$lte:to}
             }
         })
         .lean().exec((err, data) => {
@@ -214,17 +200,17 @@ exports.getTeacherById = (req, res) => {
                     }
                      if (salary) {
                             for (var l = 0; l <= salary.length - 1; l++) {
-                          
-                        if ((salary[l].incrementFromMonth) >=from&&salary[l].incrementToMonth <=to) {
-                            filterSalary.push(salary[l]);
-
-                        } 
+                                console.log("aa",new Date(salary[l].incrementDate).toUTCString())
+                             if(salary[l].incrementDate.toUTCString()<=new Date(to)){
+                                 filterSalary.push(salary[l])
+                             }
+                       
                             }
                         }
 
                     data[0].teacherDeduction = td;
                     data[0].paySalary = ps;
-                   data[0].salary = filterSalary
+                  // data[0].salary = filterSalary
                 }
                 res.status(200).json(data)
 

@@ -27,14 +27,11 @@ const increment = mongoose.Schema({
         required: true
     },
   
-      incrementFromMonth:{
+      incrementDate:{
           type:Date,
-          require:true
+          require:true,
       },
-        incrementToMonth:{
-          type:Date,
-          require:true
-      },
+        
         active:{
           type:Boolean,
            default:true
