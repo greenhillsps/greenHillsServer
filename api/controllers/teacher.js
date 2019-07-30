@@ -167,7 +167,6 @@ exports.getTeacherById = (req, res) => {
             path: 'salary',
             match: {
                 active: true,
-               incrementDate: {$lte:to}
             }
         })
         .lean().exec((err, data) => {
@@ -198,10 +197,9 @@ exports.getTeacherById = (req, res) => {
                             }
                         }
                     }
-                     if (salary) {
+                     if (salary) { 
                             for (var l = 0; l <= salary.length - 1; l++) {
-                                console.log("aa",new Date(salary[l].incrementDate).toUTCString())
-                             if(salary[l].incrementDate.toUTCString()<=new Date(to)){
+                             if(salary[l].incrementDate<=new Date(to)){
                                  filterSalary.push(salary[l])
                              }
                        
@@ -210,7 +208,7 @@ exports.getTeacherById = (req, res) => {
 
                     data[0].teacherDeduction = td;
                     data[0].paySalary = ps;
-                  // data[0].salary = filterSalary
+                   data[0].salary = filterSalary
                 }
                 res.status(200).json(data)
 
