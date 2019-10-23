@@ -9,6 +9,9 @@ const User =require('./controllers/user');
 const TeacherDeductions=require('./controllers/teacherDeductions');
 const PaySalary=require('./controllers/paySalary');
 const Increment =require('./controllers/increment');
+const StudentId=require('./controllers/studentId')
+const Student =require('./controllers/student')
+
 const apiRoutes = express.Router();
 
 //register teacher
@@ -58,6 +61,11 @@ apiRoutes.get('/teacher/increment',Increment.getIncrement);
 //deactivate teacher increment
 apiRoutes.get('/teacher/increment-delete/:id',Increment.deactivateTeacherIncrement);
 
-
+//register students
+apiRoutes.post('/student/register',Student.registerStudent);
+apiRoutes.post('/studentId',StudentId.initiateStudentID);
+apiRoutes.get('/student',Student.getStudentData);
+apiRoutes.get('/student/delete/:id',Student.deactivateStudent);
+apiRoutes.put('/student/update/:id',Student.updateStudentData);
 
 module.exports = apiRoutes;

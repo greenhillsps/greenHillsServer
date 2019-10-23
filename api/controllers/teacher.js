@@ -1,6 +1,5 @@
 const Teacher = require('../models/teacher');
 const TeacherId = require('../models/TeacherId');
-const { numberOfMonth } = require('../../helper')
 //register teacher
 exports.registerTeacher = (req, res) => {
 
