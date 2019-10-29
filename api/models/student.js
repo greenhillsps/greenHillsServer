@@ -54,7 +54,7 @@ const studentSchema = mongoose.Schema({
     fee: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Fee'
+            ref: 'ClassFee'
 
         }
 

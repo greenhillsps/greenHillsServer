@@ -6,7 +6,6 @@ exports.registerStudent=(req,res)=>{
         if (err) res.status(400).json(err)
         else {
             req.body.studentId = id.studentId;
-            console.log(req.body)
             const student = new Student(req.body);
             student.save((err, doc) => {
                 if (err) {
@@ -30,10 +29,11 @@ exports.registerStudent=(req,res)=>{
 //get student data
 exports.getStudentData = (req, res) => {
     Student.find({ active: true })
+    
         .populate({
-            path: 'Fee',
+            path: 'fee',
             match: {
-                active: true,
+               // active: true,
 
             }
         }).sort('-createdAt').exec((err, data) => {

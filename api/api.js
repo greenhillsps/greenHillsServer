@@ -11,6 +11,8 @@ const PaySalary=require('./controllers/paySalary');
 const Increment =require('./controllers/increment');
 const StudentId=require('./controllers/studentId')
 const Student =require('./controllers/student')
+const ClassFee=require('./controllers/classFee')
+const StudentFee=require('./controllers/studentFee')
 
 const apiRoutes = express.Router();
 
@@ -67,5 +69,17 @@ apiRoutes.post('/studentId',StudentId.initiateStudentID);
 apiRoutes.get('/student',Student.getStudentData);
 apiRoutes.get('/student/delete/:id',Student.deactivateStudent);
 apiRoutes.put('/student/update/:id',Student.updateStudentData);
+
+
+//class fee management
+apiRoutes.post('/class/fee',ClassFee.AddClassFee);
+apiRoutes.get('/class/fee',ClassFee.getClassFee);
+apiRoutes.delete('/class/fee/:id',ClassFee.deleteClassFee);
+apiRoutes.put('/class/fee/:id',ClassFee.updateClassFee);
+
+
+//student fee management
+apiRoutes.post('/student/fee',StudentFee.submitStudentFee);
+apiRoutes.get('/student/fee',StudentFee.getStudentFeeRecord)
 
 module.exports = apiRoutes;
