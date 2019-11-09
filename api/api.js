@@ -69,7 +69,7 @@ apiRoutes.post('/studentId',StudentId.initiateStudentID);
 apiRoutes.get('/student',Student.getStudentData);
 apiRoutes.get('/student/delete/:id',Student.deactivateStudent);
 apiRoutes.put('/student/update/:id',Student.updateStudentData);
-
+apiRoutes.get('/student/:id',Student.getStudentById);
 
 //class fee management
 apiRoutes.post('/class/fee',ClassFee.AddClassFee);
@@ -79,7 +79,8 @@ apiRoutes.put('/class/fee/:id',ClassFee.updateClassFee);
 
 
 //student fee management
-apiRoutes.post('/student/fee',StudentFee.submitStudentFee);
-apiRoutes.get('/student/fee',StudentFee.getStudentFeeRecord)
+apiRoutes.post('/studentFee',StudentFee.submitStudentFee);
+apiRoutes.get('/studentFee',StudentFee.getStudentFeeRecord);
+apiRoutes.get('/studentFeeById/:id',StudentFee.getStudentFeeRecordById);
 
 module.exports = apiRoutes;

@@ -42,6 +42,21 @@ exports.getStudentData = (req, res) => {
         })
 }
 
+//get student by id
+exports.getStudentById=(req,res)=>{
+    Student.find({_id:req.params.id,active: true })
+    
+    .populate({
+        path: 'fee',
+        match: {
+           // active: true,
+
+        }
+    }).exec((err, data) => {
+        if (err) res.status(400).json(err)
+        else res.status(200).json(data)
+    })
+}
 //deactivate teacher
 exports.deactivateStudent = (req, res) => {
     Student.findByIdAndUpdate({ _id: req.params.id }, { active: false }, { new: true }, (err, data) => {
