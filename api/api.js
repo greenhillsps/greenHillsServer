@@ -83,4 +83,6 @@ apiRoutes.post('/studentFee',StudentFee.submitStudentFee);
 apiRoutes.get('/studentFee',StudentFee.getStudentFeeRecord);
 apiRoutes.get('/studentFeeById/:id',StudentFee.getStudentFeeRecordById);
 
+apiRoutes.get('/studentId',StudentId.getStudentId)
+
 module.exports = apiRoutes;
