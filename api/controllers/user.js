@@ -27,7 +27,7 @@ exports.loginUser=(req, res) => {
         if (!user) return res.status(400).json({ loginSuccess: false, message: 'Auth failed, email not found' })
 
         user.comparePassword(req.body.password, (err, isMatch) => {
-            if (!isMatch) return res.json({ loginSuccess: false, message: 'Wrong password' });
+            if (!isMatch) return res.status(400).json({ loginSuccess: false, message: 'Wrong password' });
             else if (user.blocked) {
 
                 return res.status(400).json({ loginSuccess: false, message: 'Blocked By Admin' });
