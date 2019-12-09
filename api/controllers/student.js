@@ -29,14 +29,7 @@ exports.registerStudent=(req,res)=>{
 //get student data
 exports.getStudentData = (req, res) => {
     Student.find({ active: true })
-    
-        .populate({
-            path: 'fee',
-            match: {
-               // active: true,
-
-            }
-        }).sort('-createdAt').exec((err, data) => {
+    .sort('-createdAt').exec((err, data) => {
             if (err) res.status(400).json(err)
             else res.status(200).json(data)
         })
@@ -46,13 +39,7 @@ exports.getStudentData = (req, res) => {
 exports.getStudentById=(req,res)=>{
     Student.find({_id:req.params.id,active: true })
     
-    .populate({
-        path: 'fee',
-        match: {
-           // active: true,
-
-        }
-    }).exec((err, data) => {
+    .exec((err, data) => {
         if (err) res.status(400).json(err)
         else res.status(200).json(data)
     })

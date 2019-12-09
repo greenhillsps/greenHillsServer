@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt =require('bcrypt-nodejs');
+const bcrypt =require('bcryptjs');
 const jwt=require('jsonwebtoken');
 const SALT_I=10;
 require('dotenv').config();

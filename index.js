@@ -36,7 +36,9 @@ cloudinary.config({
 })
 
 
-
+app.use('/api/test',(req,res)=>{
+    res.json("true")
+})
 app.use('/api', apiRoutes);
 
 //posting images

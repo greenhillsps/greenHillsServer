@@ -51,14 +51,18 @@ const studentSchema = mongoose.Schema({
     },
     
     
-    fee: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'ClassFee'
+    currentClass:{
+        class:{
+        type: String,
+        require: true,
 
-        }
-
-    ],
+        },
+        fee:{
+            type: Number,
+            require: true,
+    
+            },
+    },
     
    
 },{timestamps:true} )
